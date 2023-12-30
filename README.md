@@ -1,4 +1,4 @@
-# sociall_app_2
+# social_app with firebase
 
 A new Flutter project.
 
