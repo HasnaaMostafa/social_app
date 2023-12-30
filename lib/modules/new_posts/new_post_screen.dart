@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sociall_app_2/shared/components/components.dart';
@@ -6,11 +9,19 @@ import 'package:sociall_app_2/shared/cubits/socialAppCubit.dart';
 import 'package:sociall_app_2/shared/cubits/socialAppStates.dart';
 
 import '../../shared/style/iconBroken.dart';
+import '../Filters/filters_screen.dart';
 
-class NewPostsScreen extends StatelessWidget {
-  NewPostsScreen({super.key});
+class NewPostsScreen extends StatefulWidget {
+  const NewPostsScreen({super.key, this.filteredImage});
+  final Uint8List? filteredImage;
+  @override
+  State<NewPostsScreen> createState() => _NewPostsScreenState();
+}
 
+class _NewPostsScreenState extends State<NewPostsScreen> {
   var textController = TextEditingController();
+  File? filteredPostImage;
+  Uint8List? _currentFilteredImage;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +29,9 @@ class NewPostsScreen extends StatelessWidget {
       listener: (BuildContext context, Object? state) {
         if (state is SocialUploadPostSuccessState) {
           Navigator.pop(context);
+          filteredPostImage = null;
         }
+        // _currentFilteredImage = widget.filteredImage;
       },
       builder: (BuildContext context, Object? state) {
         return Scaffold(
@@ -26,7 +39,7 @@ class NewPostsScreen extends StatelessWidget {
               defaultAppBar(context: context, title: "Create Post", actions: [
             TextButton(
                 onPressed: () {
-                  var now = DateTime.now();
+                  var now = DateTime.now().toIso8601String();
                   if (SocialCubit.get(context).postImage == null) {
                     SocialCubit.get(context).createPost(
                         text: textController.text, dateTime: now.toString());
@@ -90,33 +103,76 @@ class NewPostsScreen extends StatelessWidget {
                     height: 20,
                   ),
                 if (SocialCubit.get(context).postImage != null)
-                  Stack(
-                    alignment: AlignmentDirectional.topEnd,
-                    children: [
-                      Container(
-                        height: 140,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            image: DecorationImage(
-                              image: FileImage(
-                                  SocialCubit.get(context).postImage!),
-                              fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => FilterScreen(
+                            postImage: SocialCubit.get(context).postImage!,
+                            onSaveImage: (filteredImage) {
+                              // filteredImage = widget.filteredImage;
+                              if (filteredImage != null) {
+                                final imageFile = File(
+                                    SocialCubit.get(context).postImage!.path);
+                                imageFile.writeAsBytes(filteredImage);
+                                SocialCubit.get(context)
+                                    .updatePostImage(imageFile);
+
+                                // Update the filtered image in the NewPostsScreen state
+                                setState(() {
+                                  _currentFilteredImage = filteredImage;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      alignment: AlignmentDirectional.topEnd,
+                      children: [
+                        Container(
+                            height: 140,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              image: DecorationImage(
+                                image: _currentFilteredImage != null
+                                    ? MemoryImage(_currentFilteredImage!)
+                                        as ImageProvider
+                                    : FileImage(
+                                        SocialCubit.get(context).postImage!),
+                                fit: BoxFit.cover,
+                              ),
                             )),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            SocialCubit.get(context).removePostImage();
-                          },
-                          icon: CircleAvatar(
-                            backgroundColor: defaultColor2,
-                            radius: 20,
-                            child: const Icon(
-                              IconBroken.Close_Square,
-                              size: 16,
-                            ),
-                          )),
-                    ],
+                        IconButton(
+                            onPressed: () async {
+                              SocialCubit.get(context).removePostImage();
+                              if (_currentFilteredImage != null) {
+                                final filteredImageFile =
+                                    File.fromRawPath(_currentFilteredImage!);
+                                if (await filteredImageFile.exists()) {
+                                  await filteredImageFile.delete();
+                                }
+                              }
+
+                              // Clear filteredPostImage in the state
+                              setState(() {
+                                _currentFilteredImage = null;
+                                SocialCubit.get(context).postImage = null;
+                              });
+                            },
+                            icon: CircleAvatar(
+                              backgroundColor: defaultColor2,
+                              radius: 20,
+                              child: const Icon(
+                                IconBroken.Close_Square,
+                                size: 16,
+                              ),
+                            )),
+                      ],
+                    ),
                   ),
                 const SizedBox(
                   height: 20,

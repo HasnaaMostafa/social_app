@@ -1,6 +1,7 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:sociall_app_2/models/comment_model.dart';
 import 'package:sociall_app_2/shared/components/constatnts.dart';
@@ -8,13 +9,23 @@ import 'package:sociall_app_2/shared/cubits/socialAppCubit.dart';
 import 'package:sociall_app_2/shared/cubits/socialAppStates.dart';
 import 'package:sociall_app_2/shared/style/iconBroken.dart';
 
-class CommentScreen extends StatelessWidget {
+class CommentScreen extends StatefulWidget {
   const CommentScreen({super.key});
 
   @override
+  State<CommentScreen> createState() => _CommentScreenState();
+}
+
+class _CommentScreenState extends State<CommentScreen> {
+  String? postId;
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<SocialCubit, SocialStates>(
-      listener: (BuildContext context, Object? state) {},
+      listener: (BuildContext context, Object? state) {
+        if (state is SocialCommentPostSuccessState) {
+          BlocProvider.of<SocialCubit>(context).getComments(postId!);
+        }
+      },
       builder: (BuildContext context, Object? state) {
         var commentController = TextEditingController();
 
@@ -34,7 +45,7 @@ class CommentScreen extends StatelessWidget {
               ConditionalBuilder(
                 condition: SocialCubit.get(context).commentModelList.isNotEmpty,
                 builder: (BuildContext context) => SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: ListView.separated(
                     physics: const BouncingScrollPhysics(),
                     shrinkWrap: true,
@@ -69,16 +80,16 @@ class CommentScreen extends StatelessWidget {
                       hintStyle: Theme.of(context)
                           .textTheme
                           .caption!
-                          .copyWith(color: Colors.grey),
-                      fillColor: Colors.grey[200],
+                          .copyWith(color: HexColor("#0E6655")),
                       filled: true),
                   onFieldSubmitted: (value) {
+                    postId = SocialCubit.get(context).newPostId.toString();
                     DateTime now = DateTime.now();
                     String formattedDate =
                         DateFormat("yyyy-MM-dd -kk:mm").format(now);
 
                     SocialCubit.get(context).commentPost(
-                        postId: SocialCubit.get(context).newPostId.toString(),
+                        postId: postId!,
                         comment: commentController.text,
                         dateTime: formattedDate.toString());
 
@@ -127,7 +138,8 @@ Widget buildCommentItem(CommentModel model, context, index) {
                         children: [
                           Text(
                             "${model.name}",
-                            style: const TextStyle(height: 1.4),
+                            style:
+                                TextStyle(height: 1.4, color: Colors.grey[800]),
                           ),
                           const SizedBox(
                             width: 5,
@@ -147,7 +159,10 @@ Widget buildCommentItem(CommentModel model, context, index) {
                       ),
                       Text(
                         "${model.text}",
-                        style: Theme.of(context).textTheme.subtitle1,
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            ?.copyWith(color: Colors.grey[800]),
                       )
                     ],
                   ),

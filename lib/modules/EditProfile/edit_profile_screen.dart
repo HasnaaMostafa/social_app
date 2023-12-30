@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:sociall_app_2/modules/Login/login_screen.dart';
 import 'package:sociall_app_2/shared/components/app_button.dart';
 import 'package:sociall_app_2/shared/components/app_textformfield.dart';
 import 'package:sociall_app_2/shared/components/constatnts.dart';
@@ -11,19 +10,22 @@ import 'package:sociall_app_2/shared/style/iconBroken.dart';
 import '../../shared/components/components.dart';
 import '../../shared/cubits/socialAppStates.dart';
 import '../Login/cubit/cubit.dart';
+import '../Login/login_screen.dart';
 
 class EditProfile extends StatelessWidget {
   var nameController = TextEditingController();
   var bioController = TextEditingController();
   var phoneController = TextEditingController();
 
-  EditProfile({super.key});
+  EditProfile({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SocialCubit, SocialStates>(
       listener: (BuildContext context, Object? state) {
-        if (state is SocialGetUserSuccessState) {
+        if (state is SocialGetUserDataSuccessState) {
           Navigator.pop(context);
         }
       },
@@ -67,7 +69,7 @@ class EditProfile extends StatelessWidget {
                     const SizedBox(
                       height: 10,
                     ),
-                  Container(
+                  SizedBox(
                     height: 190,
                     child: Stack(
                       alignment: AlignmentDirectional.bottomCenter,
@@ -270,8 +272,10 @@ class EditProfile extends StatelessWidget {
                   appButton(
                       text: "logout",
                       function: () {
-                        BlocProvider.of<SocialLoginCubit>(context).logoutUser();
-                        navigateTo(context, SocialLoginScreen());
+                        BlocProvider.of<SocialLoginCubit>(context)
+                            .logoutUser(context);
+                        navigateAndFinish(context, SocialLoginScreen());
+                        BlocProvider.of<SocialCubit>(context).currentIndex = 0;
                         uId = "";
                       },
                       background: HexColor("#0E6655"),

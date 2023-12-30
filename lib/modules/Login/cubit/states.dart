@@ -1,3 +1,5 @@
+import '../../../models/user_model.dart';
+
 abstract class SocialLoginStates {}
 
 class SocialLoginInitialStates extends SocialLoginStates {}
@@ -5,8 +7,9 @@ class SocialLoginInitialStates extends SocialLoginStates {}
 class SocialLoginLoadingStates extends SocialLoginStates {}
 
 class SocialLoginSuccessStates extends SocialLoginStates {
-  final String uId;
-  SocialLoginSuccessStates(this.uId);
+  // final String uId;
+  final UserModel userModel;
+  SocialLoginSuccessStates(this.userModel);
 }
 
 class SocialLoginErrorStates extends SocialLoginStates {

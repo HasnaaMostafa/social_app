@@ -9,8 +9,10 @@ import 'package:sociall_app_2/shared/style/iconBroken.dart';
 
 import '../EditProfile/edit_profile_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Container(
+              SizedBox(
                 height: 190,
                 child: Stack(
                   alignment: AlignmentDirectional.bottomCenter,

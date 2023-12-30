@@ -6,19 +6,39 @@ import 'package:sociall_app_2/layout/home_screen.dart';
 import 'package:sociall_app_2/modules/Login/login_screen.dart';
 import 'package:sociall_app_2/shared/components/components.dart';
 
+import '../../models/user_model.dart';
 import '../../shared/components/app_button.dart';
 import '../../shared/components/app_textformfield.dart';
+import '../../shared/cubits/socialAppCubit.dart';
+import '../../shared/network/local/cache_helper.dart';
 import 'cubit/cubit.dart';
 import 'cubit/states.dart';
 
-class RegisterScreen extends StatelessWidget {
-  var formkey = GlobalKey<FormState>();
-  var emailController = TextEditingController();
-  var passwordController = TextEditingController();
-  var nameController = TextEditingController();
-  var phonedController = TextEditingController();
+class RegisterScreen extends StatefulWidget {
+  static UserModel? userModel;
 
-  RegisterScreen({super.key});
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  @override
+  void initState() {
+    super.initState();
+    RegisterScreen.userModel = UserModel();
+  }
+
+  var formkey = GlobalKey<FormState>();
+
+  var emailController = TextEditingController();
+
+  var passwordController = TextEditingController();
+
+  var nameController = TextEditingController();
+
+  var phonedController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +47,13 @@ class RegisterScreen extends StatelessWidget {
       child: BlocConsumer<SocialRegisterCubit, SocialRegisterStates>(
         listener: (BuildContext context, Object state) {
           if (state is SocialUserCreatedSuccessStates) {
-            navigateAndFinish(context, const HomeLayout());
+            RegisterScreen.userModel = state.userModel;
+            CacheHelper.saveData(
+                    key: "uId", value: RegisterScreen.userModel?.uId)
+                .then((value) {
+              navigateAndFinish(context, const HomeLayout());
+              SocialCubit.get(context).getUserData();
+            });
           }
         },
         builder: (BuildContext context, Object state) {
@@ -177,7 +203,12 @@ class RegisterScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text("Already have an account?"),
+                            Text(
+                              "Already have an account?",
+                              style: TextStyle(
+                                color: HexColor("#0E6655"),
+                              ),
+                            ),
                             TextButton(
                                 onPressed: () {
                                   Navigator.push(

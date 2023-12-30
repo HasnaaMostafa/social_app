@@ -1,17 +1,29 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:sociall_app_2/models/post_model.dart';
+import 'package:sociall_app_2/models/user_model.dart';
+import 'package:sociall_app_2/modules/Feeds/post_image_screen.dart';
 import 'package:sociall_app_2/modules/comments/comments_screen.dart';
 import 'package:sociall_app_2/shared/cubits/socialAppCubit.dart';
 import 'package:sociall_app_2/shared/cubits/socialAppStates.dart';
 import 'package:sociall_app_2/shared/style/iconBroken.dart';
 
 import '../../shared/components/components.dart';
+import '../../shared/components/show_modal_button_sheet.dart';
 
-class FeedsScreen extends StatelessWidget {
-  FeedsScreen({super.key});
+class FeedsScreen extends StatefulWidget {
+  const FeedsScreen({
+    super.key,
+  });
 
+  @override
+  State<FeedsScreen> createState() => _FeedsScreenState();
+}
+
+class _FeedsScreenState extends State<FeedsScreen> {
+  UserModel? userModel;
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SocialCubit, SocialStates>(
@@ -20,46 +32,51 @@ class FeedsScreen extends StatelessWidget {
         return ConditionalBuilder(
             condition: SocialCubit.get(context).posts.isNotEmpty &&
                 SocialCubit.get(context).usermodel != null,
-            builder: (BuildContext context) => SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Card(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        elevation: 10,
-                        margin: const EdgeInsets.all(8),
-                        child: Stack(
-                            alignment: AlignmentDirectional.center,
-                            children: [
-                              const Image(
-                                image: AssetImage("assets/images/feed.jpg"),
-                                fit: BoxFit.cover,
-                                height: 170,
-                                width: double.infinity,
-                              ),
-                              Text(
-                                "Communicate                                    "
-                                "With Friends",
-                                style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ]),
-                      ),
-                      ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (BuildContext context, int index) =>
-                              buildPostItem(
-                                  SocialCubit.get(context).posts[index],
-                                  context,
-                                  index),
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const SizedBox(
-                                height: 8,
-                              ),
-                          itemCount: SocialCubit.get(context).posts.length)
-                    ],
+            builder: (BuildContext context) => LiquidPullToRefresh(
+                  color: Colors.grey,
+                  onRefresh: SocialCubit.get(context).handleRefresh,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Card(
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          elevation: 10,
+                          margin: const EdgeInsets.all(8),
+                          child: Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: [
+                                const Image(
+                                  image: AssetImage("assets/images/feed.jpg"),
+                                  fit: BoxFit.cover,
+                                  height: 170,
+                                  width: double.infinity,
+                                ),
+                                Text(
+                                  "Communicate                                    "
+                                  "With Friends",
+                                  style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ]),
+                        ),
+                        ListView.separated(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (BuildContext context, int index) =>
+                                buildPostItem(
+                                    SocialCubit.get(context).posts[index],
+                                    context,
+                                    index),
+                            separatorBuilder:
+                                (BuildContext context, int index) =>
+                                    const SizedBox(
+                                      height: 8,
+                                    ),
+                            itemCount: SocialCubit.get(context).posts.length)
+                      ],
+                    ),
                   ),
                 ),
             fallback: (BuildContext context) =>
@@ -123,7 +140,9 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                   width: 10,
                 ),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showModelBottomSheet(context, model, index);
+                    },
                     icon: const Icon(
                       Icons.more_horiz,
                       size: 16,
@@ -143,122 +162,27 @@ Widget buildPostItem(PostModel model, context, index) => Card(
               style: const TextStyle(
                   height: 1.3, fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.only(
-            //     bottom: 10,
-            //     top: 5,
-            //   ),
-            //   child: SizedBox(
-            //     width: double.infinity,
-            //     child: Wrap(
-            //       children: [
-            //         Padding(
-            //           padding: const EdgeInsetsDirectional.only(
-            //               end: 6
-            //           ),
-            //           child: SizedBox(
-            //             height: 20,
-            //             child: MaterialButton(
-            //               onPressed: (){},
-            //               minWidth: 1,
-            //               padding: EdgeInsets.zero,
-            //               child: const Text(
-            //                 "#software",
-            //                 style: TextStyle(
-            //                   color: Colors.blue,
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //         Padding(
-            //           padding: const EdgeInsetsDirectional.only(
-            //             end: 6,),
-            //           child: SizedBox(
-            //             height: 20,
-            //             child: MaterialButton(
-            //               onPressed: (){},
-            //               minWidth: 1,
-            //               padding: EdgeInsets.zero,
-            //               child: const Text(
-            //                 "#software",
-            //                 style: TextStyle(
-            //                     color: Colors.blue
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //         Padding(
-            //           padding: const EdgeInsetsDirectional.only(
-            //               end: 10),
-            //           child: SizedBox(
-            //             height: 20,
-            //             child: MaterialButton(
-            //               onPressed: (){},
-            //               minWidth: 1,
-            //               padding: EdgeInsets.zero,
-            //               child: const Text(
-            //                 "#software",
-            //                 style: TextStyle(
-            //                     color: Colors.blue
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //         Padding(
-            //           padding: const EdgeInsetsDirectional.only(
-            //               end: 10),
-            //           child: SizedBox(
-            //             height: 20,
-            //             child: MaterialButton(
-            //               onPressed: (){},
-            //               minWidth: 1,
-            //               padding: EdgeInsets.zero,
-            //               child: const Text(
-            //                 "#software_development",
-            //                 style: TextStyle(
-            //                     color: Colors.blue
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //         Padding(
-            //           padding: const EdgeInsetsDirectional.only(
-            //               end: 10),
-            //           child: SizedBox(
-            //             height: 20,
-            //             child: MaterialButton(
-            //               onPressed: (){},
-            //               minWidth: 1,
-            //               padding: EdgeInsets.zero,
-            //               child: const Text(
-            //                 "#software_development",
-            //                 style: TextStyle(
-            //                     color: Colors.blue
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
             if (model.postImage != "")
-              Padding(
-                padding: const EdgeInsetsDirectional.only(top: 15),
-                child: Container(
-                  height: 140,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      image: DecorationImage(
-                        image: NetworkImage("${model.postImage}"),
-                        fit: BoxFit.cover,
-                      )),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              PostImageScreen(postModel: model)));
+                },
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(top: 15),
+                  child: Container(
+                    height: 140,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        image: DecorationImage(
+                          image: NetworkImage("${model.postImage}"),
+                          fit: BoxFit.cover,
+                        )),
+                  ),
                 ),
               ),
             Padding(
@@ -286,7 +210,10 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                           ],
                         ),
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        // SocialCubit.get(context).getLikesCount(
+                        //     SocialCubit.get(context).postsId[index]);
+                      },
                     ),
                   ),
                   Expanded(
@@ -314,7 +241,7 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                       onTap: () {
                         SocialCubit.get(context).getComments(
                             SocialCubit.get(context).postsId[index]);
-                        navigateTo(context, CommentScreen());
+                        navigateTo(context, const CommentScreen());
                       },
                     ),
                   ),
@@ -350,9 +277,9 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                       ],
                     ),
                     onTap: () {
-                      SocialCubit.get(context)
-                          .getComments(SocialCubit.get(context).postsId[index]);
-                      navigateTo(context, CommentScreen());
+                      SocialCubit.get(context).getComments(model.uId!);
+
+                      navigateTo(context, const CommentScreen());
                     },
                   ),
                 ),
@@ -368,7 +295,7 @@ Widget buildPostItem(PostModel model, context, index) => Card(
                         width: 5,
                       ),
                       Text(
-                        "Likes",
+                        "Like",
                         style: TextStyle(fontSize: 14),
                       )
                     ],
@@ -384,3 +311,108 @@ Widget buildPostItem(PostModel model, context, index) => Card(
         ),
       ),
     );
+
+// Padding(
+//   padding: const EdgeInsets.only(
+//     bottom: 10,
+//     top: 5,
+//   ),
+//   child: SizedBox(
+//     width: double.infinity,
+//     child: Wrap(
+//       children: [
+//         Padding(
+//           padding: const EdgeInsetsDirectional.only(
+//               end: 6
+//           ),
+//           child: SizedBox(
+//             height: 20,
+//             child: MaterialButton(
+//               onPressed: (){},
+//               minWidth: 1,
+//               padding: EdgeInsets.zero,
+//               child: const Text(
+//                 "#software",
+//                 style: TextStyle(
+//                   color: Colors.blue,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         Padding(
+//           padding: const EdgeInsetsDirectional.only(
+//             end: 6,),
+//           child: SizedBox(
+//             height: 20,
+//             child: MaterialButton(
+//               onPressed: (){},
+//               minWidth: 1,
+//               padding: EdgeInsets.zero,
+//               child: const Text(
+//                 "#software",
+//                 style: TextStyle(
+//                     color: Colors.blue
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         Padding(
+//           padding: const EdgeInsetsDirectional.only(
+//               end: 10),
+//           child: SizedBox(
+//             height: 20,
+//             child: MaterialButton(
+//               onPressed: (){},
+//               minWidth: 1,
+//               padding: EdgeInsets.zero,
+//               child: const Text(
+//                 "#software",
+//                 style: TextStyle(
+//                     color: Colors.blue
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         Padding(
+//           padding: const EdgeInsetsDirectional.only(
+//               end: 10),
+//           child: SizedBox(
+//             height: 20,
+//             child: MaterialButton(
+//               onPressed: (){},
+//               minWidth: 1,
+//               padding: EdgeInsets.zero,
+//               child: const Text(
+//                 "#software_development",
+//                 style: TextStyle(
+//                     color: Colors.blue
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         Padding(
+//           padding: const EdgeInsetsDirectional.only(
+//               end: 10),
+//           child: SizedBox(
+//             height: 20,
+//             child: MaterialButton(
+//               onPressed: (){},
+//               minWidth: 1,
+//               padding: EdgeInsets.zero,
+//               child: const Text(
+//                 "#software_development",
+//                 style: TextStyle(
+//                     color: Colors.blue
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     ),
+//   ),
+// ),

@@ -1,20 +1,20 @@
-
 import 'package:flutter/material.dart';
 
 class appButton extends StatelessWidget {
   final String text;
   final Color? background;
-  final Color textColor;
+  final Color? textColor;
   final VoidCallback? function;
   double? size;
 
-  appButton({Key? key,
+  appButton({
+    Key? key,
     required this.text,
-     this.background,
-     this.size,
-    required this.textColor,
+    this.background,
+    this.size,
+    this.textColor,
     this.function,
-    }) : super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +22,14 @@ class appButton extends StatelessWidget {
       height: 40,
       width: size,
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(10.0)
-        
-      ),
-      child: MaterialButton(onPressed
-          : function ,
-        child:
-         Text(
-             text,style: TextStyle(color: textColor),
-          ),
+          color: background, borderRadius: BorderRadius.circular(10.0)),
+      child: MaterialButton(
+        onPressed: function,
+        child: Text(
+          text,
+          style: TextStyle(color: textColor),
         ),
-
-
+      ),
     );
   }
 }
@@ -55,7 +50,3 @@ class appButton extends StatelessWidget {
 // ),
 // )),
 // )
-
-
-
-

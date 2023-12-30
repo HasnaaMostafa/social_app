@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 bool inCart = false;
@@ -8,7 +7,7 @@ bool inFavourite = false;
 
 int index = 0;
 
-String? uId;
+String? uId = "";
 
 Color defaultColor = HexColor("#B7950B");
 

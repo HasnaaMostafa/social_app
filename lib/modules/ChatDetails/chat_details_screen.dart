@@ -7,18 +7,24 @@ import 'package:sociall_app_2/shared/cubits/socialAppCubit.dart';
 import 'package:sociall_app_2/shared/cubits/socialAppStates.dart';
 import 'package:sociall_app_2/shared/style/iconBroken.dart';
 
-class ChatDetailsScreen extends StatelessWidget {
-  ChatDetailsScreen({super.key, this.userModel});
+class ChatDetailsScreen extends StatefulWidget {
+  const ChatDetailsScreen({super.key, this.userModel});
 
-  UserModel? userModel;
+  final UserModel? userModel;
 
+  @override
+  State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
+}
+
+class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   var messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Builder(
       builder: (BuildContext context) {
-        SocialCubit.get(context).getMessages(receiverId: userModel!.uId!);
+        SocialCubit.get(context)
+            .getMessages(receiverId: widget.userModel!.uId!);
         return BlocConsumer<SocialCubit, SocialStates>(
           listener: (BuildContext context, Object? state) {},
           builder: (BuildContext context, Object? state) {
@@ -29,12 +35,13 @@ class ChatDetailsScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: NetworkImage("${userModel!.image}"),
+                      backgroundImage:
+                          NetworkImage("${widget.userModel!.image}"),
                     ),
                     const SizedBox(
                       width: 15,
                     ),
-                    Text("${userModel!.name}"),
+                    Text("${widget.userModel!.name}"),
                   ],
                 ),
               ),
@@ -88,10 +95,10 @@ class ChatDetailsScreen extends StatelessWidget {
                                         text: messageController.text,
                                         dateTime:
                                             DateTime.now().toLocal().toString(),
-                                        receiverId: userModel!.uId!);
+                                        receiverId: widget.userModel!.uId!);
                                   } else {
                                     SocialCubit.get(context).sendMessage(
-                                      receiverId: userModel!.uId!,
+                                      receiverId: widget.userModel!.uId!,
                                       text: messageController.text,
                                       dateTime:
                                           DateTime.now().toLocal().toString(),
@@ -128,10 +135,10 @@ class ChatDetailsScreen extends StatelessWidget {
                                       text: messageController.text,
                                       dateTime:
                                           DateTime.now().toLocal().toString(),
-                                      receiverId: userModel!.uId!);
+                                      receiverId: widget.userModel!.uId!);
                                 } else {
                                   SocialCubit.get(context).sendMessage(
-                                    receiverId: userModel!.uId!,
+                                    receiverId: widget.userModel!.uId!,
                                     text: messageController.text,
                                     dateTime:
                                         DateTime.now().toLocal().toString(),
@@ -168,7 +175,7 @@ class ChatDetailsScreen extends StatelessWidget {
             if (model.text != "")
               Container(
                   decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: Colors.grey[600],
                       borderRadius: const BorderRadiusDirectional.only(
                         bottomEnd: Radius.circular(10),
                         topEnd: Radius.circular(10),
@@ -177,7 +184,8 @@ class ChatDetailsScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Text("${model.text}",
-                      style: const TextStyle(fontSize: 17))),
+                      style:
+                          const TextStyle(fontSize: 17, color: Colors.white))),
             if (model.chatImage != null && model.chatImage != "")
               Container(
                 height: 200,

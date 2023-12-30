@@ -6,6 +6,8 @@ import 'package:sociall_app_2/shared/style/iconBroken.dart';
 
 import '../modules/new_posts/new_post_screen.dart';
 import '../shared/components/components.dart';
+import '../shared/theme/cubit/theme_cubit.dart';
+import '../shared/theme/light_theme.dart';
 
 class HomeLayout extends StatelessWidget {
   const HomeLayout({super.key});
@@ -15,7 +17,7 @@ class HomeLayout extends StatelessWidget {
     return BlocConsumer<SocialCubit, SocialStates>(
       listener: (BuildContext context, Object state) {
         if (state is SocialNewPostsState) {
-          navigateTo(context, NewPostsScreen());
+          navigateTo(context, const NewPostsScreen());
         }
       },
       builder: (BuildContext context, Object state) {
@@ -25,8 +27,22 @@ class HomeLayout extends StatelessWidget {
             title: Text(cubit.titles[cubit.currentIndex]),
             actions: [
               IconButton(
-                  onPressed: () {}, icon: const Icon(IconBroken.Notification)),
-              IconButton(onPressed: () {}, icon: const Icon(IconBroken.Search))
+                  onPressed: () {
+                    SocialCubit.get(context).getPosts();
+                  },
+                  icon: const Icon(Icons.refresh)),
+              IconButton(
+                onPressed: () {
+                  BlocProvider.of<ThemeCubit>(context).toggleTheme();
+                },
+                icon: BlocBuilder<ThemeCubit, ThemeData>(
+                  builder: (context, theme) {
+                    return theme == LightTheme.getTheme()
+                        ? const Icon(Icons.nightlight_round_outlined)
+                        : const Icon(Icons.wb_sunny_outlined);
+                  },
+                ),
+              )
             ],
           ),
           body: cubit.screens[cubit.currentIndex],
@@ -37,10 +53,11 @@ class HomeLayout extends StatelessWidget {
                   icon: Icon(IconBroken.Home), label: "Home"),
               BottomNavigationBarItem(
                   icon: Icon(IconBroken.Chat), label: "Chats"),
+              // BottomNavigationBarItem(icon: Icon(Icons.group), label: "Groups"),
               BottomNavigationBarItem(
                   icon: Icon(IconBroken.Paper_Upload), label: "Post"),
               BottomNavigationBarItem(
-                  icon: Icon(IconBroken.Location), label: "Users"),
+                  icon: Icon(IconBroken.Game), label: "Games"),
               BottomNavigationBarItem(
                   icon: Icon(IconBroken.User), label: "Profile"),
             ],
